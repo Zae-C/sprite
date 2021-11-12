@@ -10,6 +10,10 @@ LEFT=0
 RIGHT=1
 UP = 2
 DOWN = 3
+A = 4
+D = 5
+W = 6
+S = 7
 
 #MAP: 1 is grass, 2 is brick
 map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0, 0],
@@ -29,26 +33,42 @@ map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0, 0],
        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0, 0],
        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1, 1]]
 
-brick = pygame.image.load(r'C:\Users\nitr0\Downloads\brick.png') #load your spritesheet
-dirt = pygame.image.load(r'C:\Users\nitr0\Downloads\dirt.png') #load your spritesheet
-Link = pygame.image.load(r'C:\Users\nitr0\Downloads\hk.png') #load your spritesheet
+brick = pygame.image.load(r'C:\Users\706535\Downloads\brick.png') #load your spritesheet
+blue = pygame.image.load(r'C:\Users\706535\Downloads\blue.png') #load your spritesheet
+dirt = pygame.image.load(r'C:\Users\706535\Downloads\dirt.png') #load your spritesheet
+Link = pygame.image.load(r'C:\Users\706535\Downloads\hollowknight (2).png') #load your spritesheet
 Link.set_colorkey((255, 0, 255)) #this makes bright pink (255, 0, 255) transparent (sort of)
+Link2 = pygame.image.load(r'C:\Users\706535\Downloads\hollowknight (2).png') #load your spritesheet
+Link2.set_colorkey((255, 0, 255)) #this makes bright pink (255, 0, 255) transparent (sort of)
 
 #player variables
 xpos = 500 #xpos of player
 ypos = 200 #ypos of player
 vx = 0 #x velocity of player
 vy = 0 #y velocity of player
-keys = [False, False, False, False] #this list holds whether each key has been pressed
+keys = [False, False, False, False, False, False, False, False, False] #this list holds whether each key has been pressed
 isOnGround = False #this variable stops gravity from pulling you down more when on a platform
 
+xpos2 = 500 #xpos of player
+ypos2 = 200 #ypos of player
+vx2 = 0 #x velocity of player
+vy2 = 0 #y velocity of player
+
+isOnGround2 = False #this variable stops gravity from pulling you down more when on a platform
+
 #animation variables variables
-frameWidth = 55
-frameHeight = 118
+frameWidth = 80
+frameHeight = 120
 RowNum = 0 #for left animation, this will need to change for other animations
 frameNum = 0
 ticker = 0
+frameWidth2 = 80
+frameHeight2 = 120
+RowNum2 = 0 #for left animation, this will need to change for other animations
+frameNum2 = 0
+ticker2 = 0
 direction = DOWN
+direction2 = S
 
 while not gameover:
     clock.tick(60) #FPS
@@ -64,6 +84,12 @@ while not gameover:
                 keys[RIGHT]=True
             elif event.key == pygame.K_UP:
                 keys[UP]=True
+            if event.key == pygame.K_a:
+                keys[A]=True
+            elif event.key == pygame.K_d:
+                keys[D]=True
+            elif event.key == pygame.K_w:
+                keys[W]=True
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 keys[LEFT]=False
@@ -71,7 +97,12 @@ while not gameover:
                 keys[RIGHT]=False
             elif event.key == pygame.K_UP:
                 keys[UP]=False
-          
+            if event.key == pygame.K_a:
+                keys[A]=False
+            elif event.key == pygame.K_d:
+                keys[D]=False
+            elif event.key == pygame.K_w:
+                keys[W]=False     
 
     #LEFT MOVEMENT
     if keys[LEFT]==True:
@@ -92,11 +123,32 @@ while not gameover:
         RowNum = 3
         isOnGround = False
         direction = UP
-    
-    
+        
+    if keys[A]==True:
+        vx2=-3
+        RowNum2 = 1
+        direction2 = A
+    #RIGHT MOVEMENT
+    elif keys[D] == True:
+        vx2 = 3
+        RowNum2 = 0
+        direction2 = D
+    #turn off velocity
+    else:
+        vx2 = 0
+        #JUMPING
+    if keys[W] == True and isOnGround2 == True: #only jump when on the ground
+        vy2 = -8
+        RowNum2 = 3
+        isOnGround2 = False
+        direction2 = W
+    print(vy2)
         
     xpos+=vx #update player xpos
     ypos+=vy
+    
+    xpos2+=vx2 #update player xpos
+    ypos2+=vy2
     
     
     #COLLISION
@@ -109,21 +161,43 @@ while not gameover:
     else:
         isOnGround = False
         
+    if map[int((ypos2+frameHeight2)/50)][int((xpos2+frameWidth2/2)/50)]==1 or map[int((ypos2+frameHeight2)/50)][int((xpos2+frameWidth2/2)/50)]==2:
+        isOnGround2 = True
+        vy2=0
+        
+    else:
+        isOnGround = False
+        
     #bump your head, ouch!
     if map[int((ypos)/50)][int((xpos+frameWidth/2)/50)]==1 or map[int((ypos)/50)][int((xpos+frameWidth/2)/50)]==2:
         vy=0
+        
+    if map[int((ypos2)/50)][int((xpos2+frameWidth2/2)/50)]==1 or map[int((ypos2)/50)][int((xpos2+frameWidth2/2)/50)]==2:
+        vy2=0
         
     #left collision (it's extra long because we check both head and feets(well, knees) for left collision
     if (map[int((ypos+frameHeight-10)/50)][int((xpos-10)/50)]==1 or map[int((ypos)/50)][int((xpos-10)/50)]==1 or map[int((ypos+frameHeight-10)/50)][int((xpos-10)/50)]==2 or map[int((ypos)/50)][int((xpos-10)/50)]==2 ) and direction == LEFT:
         xpos+=3
         
-    #right collision needed here
+    if (map[int((ypos2+frameHeight2-10)/50)][int((xpos2-10)/50)]==1 or map[int((ypos2)/50)][int((xpos2-10)/50)]==1 or map[int((ypos2+frameHeight2-10)/50)][int((xpos2-10)/50)]==2 or map[int((ypos2)/50)][int((xpos2-10)/50)]==2 ) and direction2 == D:
+        xpos2+=3
         
+    #right collision needed here
+    if (map[int((ypos+frameHeight-10)/50)][int((xpos-10)/50)]==1 or map[int((ypos)/50)][int((xpos-10)/50)]==1 or map[int((ypos+frameHeight-10)/50)][int((xpos-10)/50)]==2 or map[int((ypos)/50)][int((xpos-10)/50)]==2 ) and direction == LEFT:
+        xpos-=3
+        
+    if (map[int((ypos2+frameHeight2-10)/50)][int((xpos2-10)/50)]==1 or map[int((ypos2)/50)][int((xpos2-10)/50)]==1 or map[int((ypos2+frameHeight2-10)/50)][int((xpos2-10)/50)]==2 or map[int((ypos2)/50)][int((xpos2-10)/50)]==2 ) and direction2 == D:
+        xpos2-=3   
     #stop moving if you hit edge of screen (will be removed for scrolling)
     if xpos+frameWidth > 800:
         xpos-=3
     if xpos<0:
         xpos+=3
+        
+    if xpos2+frameWidth2 > 800:
+        xpos2-=3
+    if xpos2<0:
+        xpos2+=3
 
     
     #stop falling if on bottom of game screen
@@ -132,9 +206,17 @@ while not gameover:
         vy = 0
         ypos = 800-frameHeight
     
+    if ypos2 > 800-frameHeight2:
+        isOnGround2 = True
+        vy2 = 0
+        ypos2 = 800-frameHeight2
+    
     #gravity
     if isOnGround == False:
         vy+=.2 #notice this grows over time, aka ACCELERATION
+    
+    if isOnGround2 == False:
+        vy2+=.2 #notice this grows over time, aka ACCELERATION
     
 
         
@@ -142,12 +224,19 @@ while not gameover:
         
     # Update Animation Information
 
-    if vx != 0: #animate when moving
+    if vx != 0 or vy!=0: #animate when moving
         ticker+=1
-        if ticker%10==0: #only change frames every 10 ticks
+        if ticker%5==0: #only change frames every 10 ticks
           frameNum+=1
         if frameNum>=9: 
            frameNum = 0
+           
+    if vx2 != 0 or vy2    != 0: #animate when moving
+        ticker2+=1
+        if ticker2%5==0: #only change frames every 10 ticks
+          frameNum2+=1
+        if frameNum2>=9: 
+           frameNum2 = 0
   
     # RENDER--------------------------------------------------------------------------------
     # Once we've figured out what frame we're on and where we are, time to render.
@@ -157,13 +246,16 @@ while not gameover:
     #draw map
     for i in range (16):
         for j in range(16):
+            if map[i][j]==0:
+                screen.blit(blue, (j*50, i*50), (0, 0, 50, 50))
             if map[i][j]==1:
                 screen.blit(dirt, (j*50, i*50), (0, 0, 50, 50))
             if map[i][j]==2:
                 screen.blit(brick, (j*50, i*50), (0, 0, 50, 50))
         
     
-    screen.blit(Link, (xpos, ypos), (frameWidth*frameNum, RowNum*frameHeight, frameWidth, frameHeight)) 
+    screen.blit(Link, (xpos, ypos), (frameWidth*frameNum, RowNum*frameHeight, frameWidth, frameHeight))
+    screen.blit(Link2, (xpos2, ypos2), (frameWidth2*frameNum2, RowNum2*frameHeight2, frameWidth2, frameHeight2)) 
     pygame.display.flip()#this actually puts the pixel on the screen
     
 #end game loop------------------------------------------------------------------------------
